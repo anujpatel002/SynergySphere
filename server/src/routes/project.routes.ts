@@ -1,25 +1,21 @@
 // /server/src/routes/project.routes.ts
-
 import { Router } from 'express';
 import { createProject, getMyProjects, getProjectById, inviteMember } from '../controllers/project.controller';
 import { protect } from '../middleware/auth.middleware';
 import { isProjectMember } from '../middleware/membership.middleware';
+import { validate, projectSchemas } from '../utils/validation';
 
 const router = Router();
 
-// All project routes require a user to be logged in
 router.use(protect);
 
-// Routes for creating a project and getting all projects for a user
 router.route('/')
-    .post(createProject)
+    .post(validate(projectSchemas.createProject), createProject)
     .get(getMyProjects);
 
-// Routes for a specific project
 router.route('/:projectId')
-    .get(isProjectMember, getProjectById);
+    .get(validate(projectSchemas.projectId), isProjectMember, getProjectById);
 
-// Route for inviting a member to a project
-router.post('/:projectId/invite', isProjectMember, inviteMember);
+router.post('/:projectId/invite', validate(projectSchemas.inviteMember), isProjectMember, inviteMember);
 
 export default router;

@@ -1,10 +1,12 @@
+// client/app/dashboard/page.tsx
 "use client";
-import { useEffect, useState } from 'react'; // Correctly import useState here
+import { useEffect, useState } from 'react';
 import { useProjects } from '../../contexts/ProjectContext';
 import ProjectCard from '../../components/project/ProjectCard';
-import Spinner from '../../components/common/Spinner';
-import CreateProjectModal from '../../components/project/CreateProjectModal';
 import { PlusIcon } from '@heroicons/react/24/solid';
+import { Button } from '@/components/common/Button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/common/Dialog';
+import CreateProjectModal from '../../components/project/CreateProjectModal';
 
 export default function DashboardPage() {
   const { projects, fetchProjects } = useProjects();
@@ -13,38 +15,47 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchProjects().finally(() => setLoading(false));
   }, [fetchProjects]);
-  
-  const openCreateModal = () => {
-    const modal = document.getElementById('create_project_modal') as HTMLDialogElement;
-    modal?.showModal();
-  };
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-full"><Spinner /></div>;
-  }
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Projects</h1>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <PlusIcon className="w-5 h-5" />
-          New Project
-        </button>
+      <div className="flex items-center justify-between space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
+        <div className="flex items-center space-x-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusIcon className="w-5 h-5 mr-2" />
+                New Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create a New Project</DialogTitle>
+                <DialogDescription>
+                  Start a new collaborative project.
+                </DialogDescription>
+              </DialogHeader>
+              <CreateProjectModal />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-      {projects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <ProjectCard key={project._id} project={project} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-base-100 rounded-lg">
+      <div className="mt-8">
+        {loading ? (
+          <div className="flex justify-center items-center h-full">Loading projects...</div>
+        ) : projects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <ProjectCard key={project._id} project={project} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 rounded-lg border border-dashed">
             <h2 className="text-xl font-semibold">No Projects Yet</h2>
-            <p className="mt-2 text-base-content/60">Get started by creating a new project.</p>
-        </div>
-      )}
-      <CreateProjectModal />
+            <p className="mt-2 text-sm text-muted-foreground">Get started by creating a new project.</p>
+          </div>
+        )}
+      </div>
     </>
   );
 }

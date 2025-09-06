@@ -35,7 +35,7 @@
     "nodemailer": "^6.9.13",
     "socket.io": "^4.7.5",
     "winston": "^3.13.0",
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

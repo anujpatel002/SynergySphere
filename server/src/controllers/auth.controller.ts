@@ -1,5 +1,4 @@
-// /server/src/controllers/auth.controller.ts
-
+// server/src/controllers/auth.controller.ts
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -18,7 +17,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
     const user = new User({ name, email, password });
     await user.save();
-    
+
     const { accessToken, refreshToken } = await generateTokens(user._id);
 
     res.status(StatusCodes.CREATED).json({
@@ -33,12 +32,12 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.comparePassword(password))) {
+    if (!user || !(await user.comparePassword(password!))) {
         throw new AppError(StatusCodes.UNAUTHORIZED, 'Invalid email or password.');
     }
 
     const { accessToken, refreshToken } = await generateTokens(user._id);
-    
+
     res.status(StatusCodes.OK).json({
         message: 'Login successful.',
         user: user.toJSON(),
@@ -58,12 +57,13 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
         throw new AppError(StatusCodes.UNAUTHORIZED, 'Invalid or expired refresh token.');
     }
 
-    if (!refreshTokenDoc.user || !(refreshTokenDoc.user instanceof User)) {
-         throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'User could not be verified from token.');
+    // Explicitly check for the presence of the user and its type
+    if (!refreshTokenDoc.user || !('id' in (refreshTokenDoc.user as any))) {
+        throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'User could not be verified from token.');
     }
 
-    const user = refreshTokenDoc.user;
-    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(user._id);
+    const userId = (refreshTokenDoc.user as any).id;
+    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(userId);
 
     res.status(StatusCodes.OK).json({ accessToken, refreshToken: newRefreshToken });
 });
@@ -76,7 +76,6 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     res.status(StatusCodes.OK).json({ message: 'Logged out successfully.' });
 });
 
-// This function now correctly uses the augmented Request type
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
     // req.user is attached by the `protect` middleware
     const user = await User.findById(req.user?.id);

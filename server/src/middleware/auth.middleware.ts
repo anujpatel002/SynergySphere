@@ -25,10 +25,10 @@ export const protect = asyncHandler(async (req: Request, res: Response, next: Ne
 
     try {
         const decoded = jwt.verify(token, JWT_ACCESS_SECRET as Secret) as { id: string };
-        
-        // This line is crucial to attach the user ID to the request
+
+        // Attach the user ID to the request object
         req.user = { id: new Types.ObjectId(decoded.id) };
-        
+
         next();
     } catch (error) {
         return next(new AppError(StatusCodes.UNAUTHORIZED, 'Not authorized, token failed.'));

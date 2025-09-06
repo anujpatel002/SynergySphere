@@ -1,5 +1,4 @@
 # server/docker-compose.yml
-
 version: '3.8'
 
 services:
@@ -9,22 +8,14 @@ services:
     container_name: synergysphere-api
     ports:
       - "5001:5001"
-    environment:
-      - NODE_ENV=development
-      - PORT=5001
-      - MONGO_URI=mongodb+srv://swaminarayan2181_db_user:DpSPfatQWZz0sOLu@cluster0.9nqppzk.mongodb.net/synergysphere # Connects to the mongo service below
-      - CORS_ORIGIN=http://localhost:3000
-      - JWT_ACCESS_SECRET=51994cc5093422a79552ba25ecc3ec874f0f2806dbecac56cd784c43f73a8c4f
-      - JWT_REFRESH_SECRET=0e1178801bcd45259b814009a5f9b9b8
-      - JWT_ACCESS_EXPIRATION=15m
-      - JWT_REFRESH_EXPIRATION=7d
-      # Add other env vars here
+    env_file:
+      - .env
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules # Prevents local node_modules from overwriting container's
     depends_on:
       - mongo
-    command: npm run dev # Use dev script for live reloading
+    command: npm run dev
 
   # MongoDB Service
   mongo:
@@ -35,6 +26,10 @@ services:
     volumes:
       - mongo-data:/data/db
     restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
 
 volumes:
   mongo-data:

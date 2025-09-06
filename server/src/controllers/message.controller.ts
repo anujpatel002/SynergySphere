@@ -18,7 +18,7 @@ export const createMessage = asyncHandler(async (req: Request, res: Response) =>
     if (populatedMessage) {
         emitNewMessage(populatedMessage);
     }
-    
+
     res.status(StatusCodes.CREATED).json({ message: populatedMessage });
 });
 
@@ -27,6 +27,6 @@ export const getMessagesForProject = asyncHandler(async (req: Request, res: Resp
     const messages = await Message.find({ projectId })
         .populate('sender', 'name avatarUrl')
         .sort({ createdAt: 'asc' });
-        
+
     res.status(StatusCodes.OK).json({ messages });
 });

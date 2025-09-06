@@ -2,12 +2,11 @@
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { asyncHandler } from '../utils/asyncHandler';
-import { Task } from '../models/Task.model';
+import { Task, ITask } from '../models/Task.model';
 import { Project } from '../models/Project.model';
 import { AppError } from '../utils/AppError';
 import { emitNewTask, emitUpdatedTask, emitDeletedTask } from '../socket';
-import { Request } from 'express'; // Use standard Request
-import { Task, ITask } from '../models/Task.model';
+import { Request } from 'express';
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
     const { title, projectId, description, assignee, dueDate, priority } = req.body;
@@ -28,7 +27,7 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 
     // Populate necessary fields for the client
     const populatedTask = await Task.findById(task._id).populate('assignee', 'name avatarUrl');
-    
+
     // Emit real-time event to other project members
     if (populatedTask) {
         emitNewTask(populatedTask);
@@ -57,6 +56,7 @@ export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
     const { taskId } = req.params;
 
     // 1. Find the task first to ensure it exists and to get its details
+    // It's crucial to handle the 'null' case before accessing properties.
     const task: ITask | null = await Task.findById(taskId);
 
     if (!task) {

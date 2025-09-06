@@ -1,5 +1,4 @@
-// /server/src/controllers/project.controller.ts
-
+// server/src/controllers/project.controller.ts
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -51,7 +50,7 @@ export const inviteMember = asyncHandler(async (req: Request, res: Response) => 
     const { email } = req.body;
     const { projectId } = req.params;
     const inviter = await User.findById(req.user!.id);
-    
+
     if (!inviter) throw new AppError(StatusCodes.NOT_FOUND, 'Inviter not found.');
 
     const project = await Project.findById(projectId);
@@ -68,9 +67,9 @@ export const inviteMember = asyncHandler(async (req: Request, res: Response) => 
         throw new AppError(StatusCodes.CONFLICT, 'User is already a member of this project.');
     }
 
-    project.members.push({ userId: userToInvite._id, role: 'member' });
-    userToInvite.projects.push(project._id as Types.ObjectId); 
-    
+    project.members.push({ userId: userToInvite._id as Types.ObjectId, role: 'member' });
+    userToInvite.projects.push(project._id as Types.ObjectId);
+
     await project.save();
     await userToInvite.save();
 

@@ -1,5 +1,6 @@
 # /synergysphere/.gitignore
-
+server/node_modules/
+client/node_modules/
 # Dependencies
 /node_modules
 /.pnp

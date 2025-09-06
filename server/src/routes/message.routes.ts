@@ -1,8 +1,16 @@
-// server/src/routes/message.routes.ts
-
+// /server/src/routes/message.routes.ts
 import { Router } from 'express';
-const router = Router();
+import { createMessage, getMessagesForProject } from '../controllers/message.controller';
+import { protect } from '../middleware/auth.middleware';
+import { isProjectMember } from '../middleware/membership.middleware';
 
-// Future message-related routes will go here
+const router = Router();
+router.use(protect);
+
+router.route('/')
+    .post(isProjectMember, createMessage);
+
+router.route('/:projectId')
+    .get(isProjectMember, getMessagesForProject);
 
 export default router;

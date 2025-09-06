@@ -1,20 +1,12 @@
-// server/src/controllers/auth.controller.ts
+// /server/src/controllers/auth.controller.ts
 
-import { Request, Response } from 'express'; // Keep the original Request import
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { asyncHandler } from '../utils/asyncHandler';
-import { User, IUser } from '../models/User.model';
+import { User } from '../models/User.model';
 import { AppError } from '../utils/AppError';
 import { generateTokens, verifyRefreshToken } from '../services/token.service';
 import { RefreshToken } from '../models/RefreshToken.model';
-import { Types } from 'mongoose';
-
-// NEW: Define a custom interface that extends the base Request and adds our 'user' property.
-interface IAuthRequest extends Request {
-  user?: {
-    id: Types.ObjectId;
-  };
-}
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
@@ -84,9 +76,10 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     res.status(StatusCodes.OK).json({ message: 'Logged out successfully.' });
 });
 
-// UPDATED: Change 'req: Request' to 'req: IAuthRequest'
-export const getMe = asyncHandler(async (req: IAuthRequest, res: Response) => {
-    const user = await User.findById(req.user?.id); // This will now work without an error
+// This function now correctly uses the augmented Request type
+export const getMe = asyncHandler(async (req: Request, res: Response) => {
+    // req.user is attached by the `protect` middleware
+    const user = await User.findById(req.user?.id);
     if (!user) {
         throw new AppError(StatusCodes.NOT_FOUND, 'User not found.');
     }

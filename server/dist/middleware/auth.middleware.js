@@ -1,5 +1,4 @@
 "use strict";
-// server/src/middleware/auth.middleware.ts
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,10 +19,11 @@ exports.protect = (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
         return next(new AppError_1.AppError(http_status_codes_1.StatusCodes.UNAUTHORIZED, 'Not authorized, no token provided.'));
     }
     if (!JWT_ACCESS_SECRET) {
-        throw new Error('JWT_ACCESS_SECRET is not defined.');
+        throw new Error('JWT_ACCESS_SECRET is not defined in environment variables.');
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, JWT_ACCESS_SECRET);
+        // TypeScript now understands that 'user' can be on 'req'
         req.user = { id: new mongoose_1.Types.ObjectId(decoded.id) };
         next();
     }

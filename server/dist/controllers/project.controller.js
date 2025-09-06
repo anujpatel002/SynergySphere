@@ -1,5 +1,4 @@
 "use strict";
-// server/src/controllers/project.controller.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inviteMember = exports.getProjectById = exports.getMyProjects = exports.createProject = void 0;
 const http_status_codes_1 = require("http-status-codes");
@@ -58,7 +57,6 @@ exports.inviteMember = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         throw new AppError_1.AppError(http_status_codes_1.StatusCodes.CONFLICT, 'User is already a member of this project.');
     }
     project.members.push({ userId: userToInvite._id, role: 'member' });
-    // FIX: Explicitly cast project._id to ObjectId to satisfy the compiler
     userToInvite.projects.push(project._id);
     await project.save();
     await userToInvite.save();

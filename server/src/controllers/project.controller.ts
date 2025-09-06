@@ -1,4 +1,4 @@
-// server/src/controllers/project.controller.ts
+// /server/src/controllers/project.controller.ts
 
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -9,17 +9,9 @@ import { AppError } from '../utils/AppError';
 import { sendProjectInviteEmail } from '../services/email.service';
 import { Types } from 'mongoose';
 
-// NEW: Define a custom interface that extends the base Request and adds our 'user' property.
-interface IAuthRequest extends Request {
-  user?: {
-    id: Types.ObjectId;
-  };
-}
-
-// UPDATED: Use IAuthRequest instead of Request
-export const createProject = asyncHandler(async (req: IAuthRequest, res: Response) => {
+export const createProject = asyncHandler(async (req: Request, res: Response) => {
     const { name, description } = req.body;
-    const ownerId = req.user!.id; // This will now work
+    const ownerId = req.user!.id;
 
     const project = new Project({
         name,
@@ -34,9 +26,8 @@ export const createProject = asyncHandler(async (req: IAuthRequest, res: Respons
     res.status(StatusCodes.CREATED).json({ project });
 });
 
-// UPDATED: Use IAuthRequest instead of Request
-export const getMyProjects = asyncHandler(async (req: IAuthRequest, res: Response) => {
-    const projects = await Project.find({ 'members.userId': req.user!.id }).populate('owner', 'name email'); // This will now work
+export const getMyProjects = asyncHandler(async (req: Request, res: Response) => {
+    const projects = await Project.find({ 'members.userId': req.user!.id }).populate('owner', 'name email');
     res.status(StatusCodes.OK).json({ projects });
 });
 
@@ -56,11 +47,10 @@ export const getProjectById = asyncHandler(async (req: Request, res: Response) =
     res.status(StatusCodes.OK).json({ project });
 });
 
-// UPDATED: Use IAuthRequest instead of Request
-export const inviteMember = asyncHandler(async (req: IAuthRequest, res: Response) => {
+export const inviteMember = asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
     const { projectId } = req.params;
-    const inviter = await User.findById(req.user!.id); // This will now work
+    const inviter = await User.findById(req.user!.id);
     
     if (!inviter) throw new AppError(StatusCodes.NOT_FOUND, 'Inviter not found.');
 

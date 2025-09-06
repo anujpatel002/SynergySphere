@@ -1,4 +1,4 @@
-// server/src/routes/index.ts
+// /server/src/routes/index.ts
 import { Router } from 'express';
 import authRoutes from './auth.routes';
 import projectRoutes from './project.routes';
